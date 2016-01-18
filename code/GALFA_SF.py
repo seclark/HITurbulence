@@ -20,6 +20,7 @@ QU = fits.getdata("/Volumes/DataDavy/Planck/SC_241.66_28.675.allBWmustdie.Planck
 Q = QU[0, :, :].T 
 U = QU[1, :, :].T 
 theta_353 = np.mod(0.5*np.arctan2(-U, -Q), np.pi)
+theta_353_chunk = theta_353[500:500+dx, 4800:4800+dx]
 
 def cut_out_SF(data, x0, y0, rad, mirror = True):
     # Cut out an annulus
@@ -40,17 +41,35 @@ def cut_out_SF(data, x0, y0, rad, mirror = True):
         SF = np.roll(np.roll(SF, 256, axis=1), 256,axis=0)
     
     return data, SF
+    
+rad = 100
+x0 = 300
+y0 = 300
+SF_chunk = galfaSF[x0-rad:x0+rad, y0-rad:y0+rad]
 
+data, cc_sf = cut_out_SF(no_fluct_data, x0, y0, rad)
+
+rollcc = np.roll(np.roll(cc_sf, dx/2, axis=1), dx/2, axis=0)
+rotrollcc = ndi.interpolation.rotate(cc_sf, np.degrees(theta_353_chunk[x0, y0]), reshape=False)
+
+fig = plt.figure()
+ax1 = fig.add_subplot(221)
+ax2 = fig.add_subplot(222)
+ax3 = fig.add_subplot(223)
+ax3 = fig.add_subplot(224)
+
+"""
 radius = 150
-ny, nx = galfa_data.shape
-rotrollcc_corner = np.zeros((dx, dx), np.float_)
+ny, nx = no_fluct_data.shape
+rotrollcc = np.zeros((dx, dx), np.float_)
 count = 0
 for x0 in xrange(nx):
     for y0 in xrange(ny):
         if (x0 > radius) and (y0 > radius) and (x0 < (nx - radius)) and (y0 < (ny - radius)):
-            local_data, local_sf = cut_out_SF(no_fluct_data, x0, y0)
-            rotrollcc += ndi.interpolation.rotate(cc_sf, np.degrees(theta_353_chunk[y0, x0]), reshape=False)
+            local_data, local_sf = cut_out_SF(no_fluct_data, x0, y0, radius)
+            rotrollcc += ndi.interpolation.rotate(local_sf, np.degrees(theta_353_chunk[y0, x0]), reshape=False)
             count += 1
             
 rotrollcc_corner = rotrollcc[256:, 256:]
 plt.imshow(rotrollcc_corner/count)
+"""
