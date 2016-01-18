@@ -58,6 +58,13 @@ ax2 = fig.add_subplot(222)
 ax3 = fig.add_subplot(223)
 ax3 = fig.add_subplot(224)
 
+ax1.imshow(data)
+ax2.imshow(cc_sf)
+ax3.imshow(rotrollcc)
+
+ax4.plot(rotrollcc[dx/2, dx/2:] - np.nanmin(rotrollcc), ".", color = "red")
+ax4.plot(rotrollcc[dx/2:, dx/2] - np.nanmin(rotrollcc), ".", color = "blue")
+
 """
 radius = 150
 ny, nx = no_fluct_data.shape
